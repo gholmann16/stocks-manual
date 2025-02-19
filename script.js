@@ -18,16 +18,15 @@ function createOrders() {
 
 createOrders();
 
-const buyButtons = document.querySelectorAll("buyButton"); 
-    buyButtons.forEach(button => {
+const buyButtons = document.querySelectorAll(".buyButton")
+     buyButtons.forEach(button => {
     button.addEventListener("click", function() {
         alert("Button Clicked");
-    }); 
      }); 
+       }); 
 
 const sellButtons = document.querySelectorAll(".sellButton")
-
-sellButtons.forEach(button => {
+    sellButtons.forEach(button => {
     button.addEventListener("click", function() {
         alert("Sell Button Clicker");
     });
