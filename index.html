@@ -8,36 +8,82 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
-    <h2>Stocks</h2>
-    <div class="inner" id="main">
-    <!-- <div class="vertical" id="positions"></div>
-     <div class="box">
-        <p>test</p> -->
-      <div class="container" id="stocks"></div>
+    <div class = inner >
+      <h2 id = title1> Orders</h2>
+      <h2 id = title2> Stocks</h2>
+      <h2 id = title3> filler </h2>
+    </div>
+    </div>
+    <div class = "container">
+    <div class="outer" id="ordersContainer">
+      <div class = "vertical" id = "veritcal">
+        <div class="column" id="orders">
+          <template id="order">
+              <div class="box">
+                  <div class="inner">
+                      <p>Order: </p>
+                      <p class="order"></p>
+                  </div>
+                  <div class="inner">
+                      <p>Price: </p>
+                      <p class="price"></p>
+                  </div>
+                  <div class="inner">
+                      <button class="buyButton">Buy</button>
+                      <button class="sellButton">Sell</button>
+                  </div>
+              </div>
+          </template>
       </div>
-      <div class="vertical" id ="orders">
-        <template id="order">
-          <div class="box">
-            <div class="inner">
-              <p>Stock: </p>
-              <p id="stock"></p>
-            </div>
-             <div class ="inner">
-              <p>Price: </p>
-              <p id="price"></p>
-             </div>
-            <div class="inner">
-              <button class = "buyButton">Buy</button>
-              <button class = "sellButton">Sell</button>
-            </div>
-          </div>
-        </template>
       </div>
     </div>
-
-    <h4></h4>
+     <div class="outer" id="stocksContainer">
+          <div class="vertical" id="vertical">
+            <div class ="column" id = "stocks">
+            <template id="stock">
+                <div class="box">
+                    <div class="inner">
+                        <p>Stock: </p>
+                        <p class="stock"></p>
+                    </div>
+                    <div class="inner">
+                        <p>Price: </p>
+                        <p class="price"></p>
+                    </div>
+                    <div class="inner">
+                        <button class="buyButton">Buy</button>
+                        <button class="sellButton">Sell</button>
+                      </div>
+                    </div>
+            </template>
+        </div>
+     </div>
+     </div>
+     <div class="outer" id="ordersContainer">
+      <div class = "vertical" id = "veritcal">
+        <div class="column" id="orders">
+          <template id="order">
+              <div class="box">
+                  <div class="inner">
+                      <p>Order: </p>
+                      <p class="order"></p>
+                  </div>
+                  <div class="inner">
+                      <p>Price: </p>
+                      <p class="price"></p>
+                  </div>
+                  <div class="inner">
+                      <button class="buyButton">Buy</button>
+                      <button class="sellButton">Sell</button>
+                  </div>
+              </div>
+          </template>
+      </div>
+      </div>
+    </div>
+    </div>
    
-    <h3>Graph</h3>
+    <h2>Graph</h2>
     <div class="inner" id="main">
       <div id="graphWrapper">
         <canvas id="stockGraph"></canvas>

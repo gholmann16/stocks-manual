@@ -1,25 +1,44 @@
-function createOrders() {
-    let orders = new Array();
-    orders[0] = {id: 3, creator: "Jai", stock: "London", date: "09/16/2025", cents: 9998, kind: "Buy"}
-    orders[1] = {id: 4, creator: "Bibi", stock: "Ayaan", date: "09/16/2025", cents: 3254, kind: "Sell"}
-    orders[2] = {id: 5, creator: "Josh", stock: "Gabe", date: "09/18/2025", cents: 1000000, kind: "Sell"}
+function createStocks() {
+    let stocks = new Array();
+    stocks[0] = {id: 3, creator: "Jai", stock: "London", date: "09/16/2025", cents: 9998, kind: "Buy"}
+    stocks[1] = {id: 4, creator: "Bibi", stock: "Ayaan", date: "09/16/2025", cents: 3254, kind: "Sell"}
+    stocks[2] = {id: 5, creator: "Josh", stock: "Gabe", date: "09/18/2025", cents: 1000000, kind: "Sell"}
 
-    let parent = document.getElementById("orders");
-    let template = document.getElementById("order");
-    for (const order of orders) {
+    let parent = document.getElementById("stocks");
+    let template = document.getElementById("stock");
+    for (const stockObj of stocks) {
         let clone = template.content.cloneNode(true);
-        let price = clone.getElementById("price");
-        price.textContent = order.cents;
-        let stock = clone.getElementById("stock");
-        stock.textContent = order.stock;
+        let price = clone.querySelector(".price");
+        price.textContent = stockObj.cents;
+        let stockName = clone.querySelector(".stock");
+        stockName.textContent = stockObj.stock;
         parent.appendChild(clone);
     }
 }
 
-createOrders();
+createStocks();
 
-const buyButtons = document.querySelectorAll(".buyButton")
-     buyButtons.forEach(button => {
+function createOrders() {
+    let orders = new Array();
+    orders[0] = {id: 6, creator: "Jai", order: "London", date: "09/16/2025", cents: 9998, kind: "Buy"}
+    orders[1] = {id: 7, creator: "Bibi", order: "Ayaan", date: "09/16/2025", cents: 3254, kind: "Sell"}
+    orders[2] = {id: 8, creator: "Josh", order: "Gabe", date: "09/18/2025", cents: 1000000, kind: "Sell"}
+
+    let parent = document.getElementById("orders");
+    let template = document.getElementById("order");
+    for (const orderObj of orders) {
+        let clone = template.content.cloneNode(true);
+        let price = clone.querySelector(".price");
+        price.textContent = orderObj.cents;
+        let orderName = clone.querySelector(".order");
+        orderName.textContent = orderObj.order;
+        parent.appendChild(clone);
+    }
+}
+createOrders(); 
+
+const buyButtons = document.querySelectorAll(".buyButton"); 
+    buyButtons.forEach(button => {
     button.addEventListener("click", function() {
         alert("Button Clicked");
      }); 
