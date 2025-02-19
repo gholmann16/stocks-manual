@@ -8,7 +8,7 @@ function createOrders() {
     for (const order of orders) {
         let clone = template.content.cloneNode(true);
         let price = clone.getElementById("price");
-        price.textContent = order.stock;
+        price.textContent = order.cents;
         parent.appendChild(clone);
     }
 }
