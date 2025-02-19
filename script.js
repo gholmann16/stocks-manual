@@ -18,6 +18,21 @@ function createOrders() {
 
 createOrders();
 
+const buyButtons = document.querySelectorAll("buyButton"); 
+    buyButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        alert("Button Clicked");
+    }); 
+     }); 
+
+const sellButtons = document.querySelectorAll(".sellButton")
+
+sellButtons.forEach(button => {
+    button.addEventListener("click", function() {
+        alert("Sell Button Clicker");
+    });
+});
+
 const ctx = document.getElementById('stockGraph').getContext('2d');
 
 const xValues = [100,200,300,400,500,600,700,800,900,1000];
