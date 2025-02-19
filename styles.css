@@ -1,0 +1,60 @@
+:root {
+    --primary: #ececec;
+    --off-primary: #9fd3c7;
+    --secondary: #385170;
+    --off-secondary: #142d4c;
+    --accent: #ea7362;
+    --off-accent: #b74242;
+}
+
+.container {
+    background-color: var(--primary);
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+}
+
+.vertical {
+    background-color: var(--primary);
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+    border: 3px solid var(--secondary);
+    padding: 10px;
+}
+
+.box {
+    border: 3px solid var(--primary);
+    height: 250px;
+    width: 250px;
+}
+
+.inner {
+    display: flex;
+    flex-direction: row;
+    margin: 10px;
+    justify-content: center;
+    gap: 10px;
+}
+
+p {
+    font-size: 20px;
+}
+
+h2 {
+    text-align: center;
+    color: var(--off-accent)
+}
+
+button {
+    background-color: var(--accent);
+    padding: 16px 32px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+body {
+    background-color: var(--primary);
+}
