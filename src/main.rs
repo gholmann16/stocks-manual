@@ -2,10 +2,11 @@ use std::{
     // io::{prelude::*, BufReader},
     // net::{TcpListener, TcpStream},
     time::SystemTime,
+    fs,
 };
 
 use rusqlite::{Connection};
-use actix_web::{get, post, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, App, HttpResponse, HttpServer, Responder, http::header::ContentType};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
@@ -50,7 +51,30 @@ struct Account {
 
 #[get("/")]
 async fn index() -> impl Responder {
-    HttpResponse::Ok().body("Default Response\n")
+    HttpResponse::Ok()
+        .insert_header(ContentType::html())
+        .body(fs::read_to_string("website/index.html").unwrap())
+}
+
+#[get("/script.js")]
+async fn script() -> impl Responder {
+    HttpResponse::Ok()
+        .insert_header(("Content-Type", "text/javascript; charset=utf-8"))
+        .body(fs::read_to_string("website/script.js").unwrap())
+}
+
+#[get("/styles.css")]
+async fn styles() -> impl Responder {
+    HttpResponse::Ok()
+        .insert_header(("Content-Type", "text/css; charset=utf-8"))
+        .body(fs::read_to_string("website/styles.css").unwrap())
+}
+
+#[get("/favicon.ico")]
+async fn favicon() -> impl Responder {
+    HttpResponse::Ok()
+        .insert_header(("Content-Type", "image/x-icon"))
+        .body(fs::read_to_string("website/favicon.ico").unwrap())
 }
 
 #[get("/stocks")]
@@ -82,6 +106,9 @@ async fn main() -> std::io::Result<()> {
         App::new()
             .service(index)
             .service(stock)
+            .service(script)
+            .service(styles)
+            .service(favicon)
     })
     .bind("0.0.0.0:8000")?
     .run()
