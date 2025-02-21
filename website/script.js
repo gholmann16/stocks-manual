@@ -51,6 +51,19 @@ const sellButtons = document.querySelectorAll(".sellButton")
     });
 });
 
+const url = "http://localhost:8000/stocks";
+try {
+  const response = fetch(url);
+  if (!response.ok) {
+    throw new Error(`Response status: ${response.status}`);
+  }
+
+  const json = response.json();
+  console.log(json);
+} catch (error) {
+  console.error(error.message);
+}
+
 const ctx = document.getElementById('stockGraph').getContext('2d');
 
 const xValues = [100,200,300,400,500,600,700,800,900,1000];
