@@ -8,6 +8,7 @@ use std::{
 use rusqlite::{Connection};
 use actix_web::{get, post, App, HttpResponse, HttpServer, Responder, http::header::ContentType};
 use serde::{Deserialize, Serialize};
+use serde_json::json;
 
 #[derive(Debug)]
 enum OrderType {
@@ -53,28 +54,28 @@ struct Account {
 async fn index() -> impl Responder {
     HttpResponse::Ok()
         .insert_header(ContentType::html())
-        .body(fs::read_to_string("website/index.html").unwrap())
+        .body(fs::read("website/index.html").unwrap())
 }
 
 #[get("/script.js")]
 async fn script() -> impl Responder {
     HttpResponse::Ok()
         .insert_header(("Content-Type", "text/javascript; charset=utf-8"))
-        .body(fs::read_to_string("website/script.js").unwrap())
+        .body(fs::read("website/script.js").unwrap())
 }
 
 #[get("/styles.css")]
 async fn styles() -> impl Responder {
     HttpResponse::Ok()
         .insert_header(("Content-Type", "text/css; charset=utf-8"))
-        .body(fs::read_to_string("website/styles.css").unwrap())
+        .body(fs::read("website/styles.css").unwrap())
 }
 
 #[get("/favicon.ico")]
 async fn favicon() -> impl Responder {
     HttpResponse::Ok()
         .insert_header(("Content-Type", "image/x-icon"))
-        .body(fs::read_to_string("website/favicon.ico").unwrap())
+        .body(fs::read("website/favicon.ico").unwrap())
 }
 
 #[get("/stocks")]
@@ -90,14 +91,17 @@ async fn stock() -> impl Responder {
         })
     }).unwrap();
 
-    let mut response = String::new();
+    let mut people: Vec<Person> = Vec::new();
     for person in person_iter {
-        let json = serde_json::to_string(&person.unwrap());
-        response += &json.unwrap();
-        response += "\n"
+        people.push(person.unwrap());
     }
 
-    HttpResponse::Ok().insert_header(("Access-Control-Allow-Origin", "*")).body(response)
+    let megajson = json!(people);
+    let response = serde_json::to_string(&megajson);
+
+    HttpResponse::Ok()
+        .insert_header(ContentType::json())
+        .body(response.unwrap())
 }
 
 #[actix_web::main]
@@ -114,32 +118,3 @@ async fn main() -> std::io::Result<()> {
     .run()
     .await
 }
-
-// fn main() {
-//     let listener = TcpListener::bind("127.0.0.1:7878").unwrap();
-
-//     for stream in listener.incoming() {
-//         let stream = stream.unwrap();
-
-//         handle_connection(stream);
-//     }
-// }
-
-// fn handle_connection(mut stream: TcpStream) {
-//     let buf_reader = BufReader::new(&stream);
-//     let http_request: Vec<_> = buf_reader
-//         .lines()
-//         .map(|result| result.unwrap())
-//         .take_while(|line| !line.is_empty())
-//         .collect();
-
-//     println!("{:#?}", http_request);
-
-//     let status_line = "HTTP/1.1 200 OK";
-//     let length = contents.len();
-
-//     let response =
-//         format!("{status_line}\r\nContent-Length: {length}\r\n\r\n{contents}");
-
-//     stream.write_all(response.as_bytes()).unwrap();
-// }
