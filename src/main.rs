@@ -6,7 +6,7 @@ use std::{
 };
 
 use rusqlite::{Connection};
-use actix_web::{get, post, App, HttpResponse, HttpServer, Responder, http::header::ContentType};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, http::header::ContentType};
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
@@ -104,6 +104,17 @@ async fn stock() -> impl Responder {
         .body(response.unwrap())
 }
 
+#[get("/price/{id}")]
+async fn get_price(path: web::Path<i32>) -> impl Responder {
+    let id: i32 = path.into_inner();
+
+    // let conn = Connection::open("./data.db").unwrap();
+    // let mut stmt = conn.prepare("SELECT stock, cents FROM transactions WHERE Person").unwrap();
+    HttpResponse::Ok()
+        .insert_header(ContentType::plaintext())
+        .body("999")
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -113,6 +124,7 @@ async fn main() -> std::io::Result<()> {
             .service(script)
             .service(styles)
             .service(favicon)
+            .service(get_price)
     })
     .bind("0.0.0.0:8000")?
     .run()
