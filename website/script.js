@@ -1,17 +1,3 @@
-async function getPrice(id) {
-    try {
-        const url = '/price/' + id; 
-        const response = await fetch(url);
-        if (!response.ok) {
-            throw new Error(`Response status: ${response.status}`);
-        }
-        
-        return await response.text();
-    } catch (error) {
-        console.error(error.message);
-    }
-}
-
 async function createStocks() {
     try {
         const response = await fetch("/stocks");
@@ -19,7 +5,6 @@ async function createStocks() {
             throw new Error(`Response status: ${response.status}`);
         }
         const stocks = await response.json();
-        // id, name, symbol
 
         let parent = document.getElementById("stocks");
         let template = document.getElementById("stock");
@@ -27,7 +12,7 @@ async function createStocks() {
             let clone = template.content.cloneNode(true);
 
             let price = clone.querySelector(".price");
-            price.textContent = await getPrice(stock.id);
+            price.textContent = stock.price;
 
             let stockName = clone.querySelector(".stock");
             stockName.textContent = stock.name;

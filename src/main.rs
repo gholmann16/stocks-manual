@@ -1,53 +1,46 @@
 use std::{
-    // io::{prelude::*, BufReader},
-    // net::{TcpListener, TcpStream},
-    time::SystemTime,
-    fs,
+    fs, time,
 };
-
-use rusqlite::{Connection};
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, http::header::ContentType};
+use actix_web::{
+    get, http::header::ContentType, post, web, App, HttpResponse, HttpServer, Responder,
+};
+use rusqlite::Connection;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
-#[derive(Debug)]
-enum OrderType {
-    Buy,
-    Sell,
-}
+type Symbol = String;
+type CTime = u64;
 
-#[derive(Serialize, Deserialize, Debug)]
+#[derive(Debug)]
 struct Person {
     id: i32,
-    symbol: String,
+    symbol: Symbol,
     name: String,
 }
 
 #[derive(Debug)]
 struct Transaction {
     id: i32,
-    buyer: Person,
-    seller: Person,
-    stock: Person,
-    cents: i32,
-    presented: SystemTime,
-    sold: SystemTime,
-    kind: OrderType,
+    buyer: Symbol,
+    seller: Symbol,
+    creator: Symbol,
+    symbol: Symbol,
+    cents: u32,
+    quantity: u32,
+    presented: CTime, // for simplicity of conversion between 3 different languages, using simplest type
+    sold: CTime,
 }
 
-struct Order {
-    id: i32,
-    creator: Person,
-    stock: Person,
-    date: SystemTime,
-    cents: i32,
-    kind: OrderType,
+#[derive(Serialize, Deserialize, Debug)]
+struct Price {
+    symbol: Symbol,
+    name: String,
+    price: u32,
 }
 
 struct Account {
-    id: i32,
     positions: Vec<Person>,
-    money: i32,
+    money: u32,
 }
 
 #[get("/")]
@@ -78,41 +71,85 @@ async fn favicon() -> impl Responder {
         .body(fs::read("website/favicon.ico").unwrap())
 }
 
+fn get_time() -> u64 {
+    let time: u64;
+
+    match time::SystemTime::now().duration_since(time::UNIX_EPOCH) {
+        Ok(n) => time = n.as_secs(),
+        Err(_) => panic!("SystemTime before UNIX EPOCH!"),
+    }
+
+    return time;
+}
+
 #[get("/stocks")]
 async fn stock() -> impl Responder {
     let conn = Connection::open("./data.db").unwrap();
-    let mut stmt = conn.prepare("SELECT id, symbol, name FROM person").unwrap();
+    let mut stmt = conn.prepare("SELECT * FROM person").unwrap();
 
-    let person_iter = stmt.query_map([], |row| {
-        Ok(Person {
-            id: row.get(0)?,
-            symbol: row.get(1)?,
-            name: row.get(2)?,
+    let person_iter = stmt
+        .query_map([], |row| {
+            Ok(Person {
+                id: row.get(0)?,
+                symbol: row.get(1)?,
+                name: row.get(2)?,
+            })
         })
-    }).unwrap();
+        .unwrap();
 
-    let mut people: Vec<Person> = Vec::new();
+    let mut prices: Vec<Price> = Vec::new();
     for person in person_iter {
-        people.push(person.unwrap());
+        let new_person = person.unwrap();
+        let mut hist = conn.prepare(&format!("SELECT * FROM transactions WHERE symbol = '{}'", new_person.symbol)).unwrap();
+
+        let transaction_iter = hist.query_map([], |row| {
+            Ok(Transaction {
+                id: row.get(0)?,
+                buyer: row.get(1)?,
+                seller: row.get(2)?,
+                symbol: row.get(3)?,
+                creator: row.get(4)?,
+                cents: row.get(5)?,
+                quantity: row.get(6)?,
+                presented: row.get(7)?,
+                sold: row.get(8)?,
+            })
+        }).unwrap();
+
+        /*
+        * Stock price estimate algorithm:
+        * completely custom, could not find anything online
+        * for this first iteration it will be:
+        * sigma of all stocks (price) * (quantity) * (0.98)^(days since sold) over total quantity * total weighted time                 
+        */
+
+        let current_time = get_time();
+        let mut sigma = 100.0;
+        let mut weight = 1.0;
+
+        for transaction in transaction_iter {
+            let clean = transaction.unwrap();
+            sigma += clean.cents as f64 * clean.quantity as f64 * f64::powf(0.98, ((current_time - clean.sold) / 86400) as u32 as f64);
+            weight += clean.quantity as f64 * f64::powf(0.98, ((current_time - clean.sold) / 86400) as u32 as f64);
+        }
+
+        let calculated = (sigma / weight) as u32;
+
+        let summary = Price {
+            symbol: new_person.symbol,
+            name: new_person.name,
+            price: calculated,
+        };
+
+        prices.push(summary);
     }
 
-    let megajson = json!(people);
+    let megajson = json!(prices);
     let response = serde_json::to_string(&megajson);
 
     HttpResponse::Ok()
         .insert_header(ContentType::json())
         .body(response.unwrap())
-}
-
-#[get("/price/{id}")]
-async fn get_price(path: web::Path<i32>) -> impl Responder {
-    let id: i32 = path.into_inner();
-
-    // let conn = Connection::open("./data.db").unwrap();
-    // let mut stmt = conn.prepare("SELECT stock, cents FROM transactions WHERE Person").unwrap();
-    HttpResponse::Ok()
-        .insert_header(ContentType::plaintext())
-        .body("999")
 }
 
 #[actix_web::main]
@@ -124,7 +161,6 @@ async fn main() -> std::io::Result<()> {
             .service(script)
             .service(styles)
             .service(favicon)
-            .service(get_price)
     })
     .bind("0.0.0.0:8000")?
     .run()
