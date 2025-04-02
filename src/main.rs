@@ -1,12 +1,22 @@
 use std::{
     fs, time,
 };
+
+use rusqlite::Connection;
+
 use actix_web::{
     get, http::header::ContentType, post, web, App, HttpResponse, HttpServer, Responder,
 };
-use rusqlite::Connection;
+
 use serde::{Deserialize, Serialize};
 use serde_json::json;
+
+use charming::{
+    component::{Legend, Axis},
+    element::{ItemStyle, AxisType},
+    series::Candlestick,
+    Chart, HtmlRenderer, df,
+};
 
 type Symbol = String;
 type CTime = u64;
@@ -152,6 +162,33 @@ async fn stock() -> impl Responder {
         .body(response.unwrap())
 }
 
+fn generate_chart() {
+    let new_chart = Chart::new()
+    .x_axis(Axis::new().data(vec!["2017-10-24", "2017-10-25", "2017-10-26", "2017-10-27"]))
+    .y_axis(Axis::new())
+    .series(Candlestick::new().data(df![
+        [20, 34, 10, 38],
+        [40, 35, 30, 50],
+        [31, 38, 33, 44],
+        [38, 15, 5, 42]
+    ]));
+
+    let mut renderer = HtmlRenderer::new("main", 600, 400);
+    renderer.save(&new_chart, "chart.html").unwrap();
+}
+
+#[get("/chart.html")]
+async fn chart() -> impl Responder {
+
+    if fs::metadata("chart.html").is_ok() == false {
+        generate_chart();
+    }
+
+    HttpResponse::Ok()
+        .insert_header(ContentType::html())
+        .body(fs::read("chart.html").unwrap())
+}
+
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
@@ -161,6 +198,7 @@ async fn main() -> std::io::Result<()> {
             .service(script)
             .service(styles)
             .service(favicon)
+            .service(chart)
     })
     .bind("0.0.0.0:8000")?
     .run()
